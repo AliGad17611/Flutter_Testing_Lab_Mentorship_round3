@@ -18,6 +18,7 @@ class _UserRegistrationFormState extends State<UserRegistrationForm> {
   String _message = '';
 
   bool isValidEmail(String email) {
+    // Email must be a valid email address
     final RegExp emailRegex = RegExp(
       r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
     );
@@ -25,7 +26,11 @@ class _UserRegistrationFormState extends State<UserRegistrationForm> {
   }
 
   bool isValidPassword(String password) {
-    return true;
+    // Password must be at least 8 characters, contain upper, lower, digit and special character
+    final RegExp passwordRegex = RegExp(
+      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$'
+    );
+    return passwordRegex.hasMatch(password);
   }
 
   Future<void> _submitForm() async {

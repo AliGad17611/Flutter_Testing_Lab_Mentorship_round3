@@ -18,7 +18,10 @@ class _UserRegistrationFormState extends State<UserRegistrationForm> {
   String _message = '';
 
   bool isValidEmail(String email) {
-    return email.contains('@');
+    final RegExp emailRegex = RegExp(
+      r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+    );
+    return emailRegex.hasMatch(email);
   }
 
   bool isValidPassword(String password) {

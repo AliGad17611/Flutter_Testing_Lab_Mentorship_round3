@@ -5,6 +5,20 @@ class UserRegistrationForm extends StatefulWidget {
 
   @override
   State<UserRegistrationForm> createState() => _UserRegistrationFormState();
+
+  static bool isValidEmail(String email) {
+    final RegExp emailRegex = RegExp(
+      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{3,}$",
+    );
+    return emailRegex.hasMatch(email);
+  }
+
+  static bool isValidPassword(String password) {
+    final RegExp passwordRegex = RegExp(
+      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$',
+    );
+    return passwordRegex.hasMatch(password);
+  }
 }
 
 class _UserRegistrationFormState extends State<UserRegistrationForm> {
@@ -17,21 +31,7 @@ class _UserRegistrationFormState extends State<UserRegistrationForm> {
   bool _isLoading = false;
   String _message = '';
 
-  bool isValidEmail(String email) {
-    // Email must be a valid email address to be like this example@example.com
-    final RegExp emailRegex = RegExp(
-      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{3,}$"
-    );
-    return emailRegex.hasMatch(email);
-  }
-
-  bool isValidPassword(String password) {
-    // Password must be at least 8 characters, contain upper, lower, digit and special character
-    final RegExp passwordRegex = RegExp(
-      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$'
-    );
-    return passwordRegex.hasMatch(password);
-  }
+  
 
   Future<void> _submitForm() async {
     // Validate the form fields first
@@ -95,7 +95,7 @@ class _UserRegistrationFormState extends State<UserRegistrationForm> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email';
                 }
-                if (!isValidEmail(value)) {
+                if (!UserRegistrationForm.isValidEmail(value)) {
                   return 'Please enter a valid email';
                 }
                 return null;
@@ -114,7 +114,7 @@ class _UserRegistrationFormState extends State<UserRegistrationForm> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a password';
                 }
-                if (!isValidPassword(value)) {
+                if (!UserRegistrationForm.isValidPassword(value)) {
                   return 'Password is too weak';
                 }
                 return null;

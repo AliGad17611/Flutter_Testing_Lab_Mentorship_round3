@@ -34,6 +34,16 @@ class _UserRegistrationFormState extends State<UserRegistrationForm> {
   }
 
   Future<void> _submitForm() async {
+    // Validate the form fields first
+    if (!_formKey.currentState!.validate()) {
+      // If validation fails, do not proceed and display errors
+      setState(() {
+        _isLoading = false;
+        _message = 'Please correct the errors in the form.';
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _message = '';

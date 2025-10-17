@@ -5,6 +5,20 @@ class UserRegistrationForm extends StatefulWidget {
 
   @override
   State<UserRegistrationForm> createState() => _UserRegistrationFormState();
+
+  static bool isValidEmail(String email) {
+    final RegExp emailRegex = RegExp(
+      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{3,}$",
+    );
+    return emailRegex.hasMatch(email);
+  }
+
+  static bool isValidPassword(String password) {
+    final RegExp passwordRegex = RegExp(
+      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$',
+    );
+    return passwordRegex.hasMatch(password);
+  }
 }
 
 class _UserRegistrationFormState extends State<UserRegistrationForm> {
@@ -17,15 +31,19 @@ class _UserRegistrationFormState extends State<UserRegistrationForm> {
   bool _isLoading = false;
   String _message = '';
 
-  bool isValidEmail(String email) {
-    return email.contains('@');
-  }
-
-  bool isValidPassword(String password) {
-    return true;
-  }
+  
 
   Future<void> _submitForm() async {
+    // Validate the form fields first
+    if (!_formKey.currentState!.validate()) {
+      // If validation fails, do not proceed and display errors
+      setState(() {
+        _isLoading = false;
+        _message = 'Please correct the errors in the form.';
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _message = '';
@@ -77,7 +95,7 @@ class _UserRegistrationFormState extends State<UserRegistrationForm> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email';
                 }
-                if (!isValidEmail(value)) {
+                if (!UserRegistrationForm.isValidEmail(value)) {
                   return 'Please enter a valid email';
                 }
                 return null;
@@ -96,7 +114,7 @@ class _UserRegistrationFormState extends State<UserRegistrationForm> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a password';
                 }
-                if (!isValidPassword(value)) {
+                if (!UserRegistrationForm.isValidPassword(value)) {
                   return 'Password is too weak';
                 }
                 return null;

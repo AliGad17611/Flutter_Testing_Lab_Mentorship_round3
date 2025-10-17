@@ -81,7 +81,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
   }
 
   double get totalAmount {
-    return subtotal + totalDiscount;
+    return subtotal - totalDiscount;
   }
 
   int get totalItems {

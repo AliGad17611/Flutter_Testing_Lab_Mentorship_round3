@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   final List<Widget> _tabViews = [
     const UserRegistrationForm(),
-    const ShoppingCart(),
+    const ShoppingCartWidget(),
     const WeatherDisplay(),
   ];
 

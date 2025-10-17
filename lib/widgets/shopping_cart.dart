@@ -16,47 +16,36 @@ class CartItem {
   });
 }
 
-class ShoppingCart extends StatefulWidget {
-  const ShoppingCart({super.key});
-
-  @override
-  State<ShoppingCart> createState() => _ShoppingCartState();
-}
-
-class _ShoppingCartState extends State<ShoppingCart> {
+class ShoppingCart {
   final List<CartItem> _items = [];
 
   void addItem(String id, String name, double price, {double discount = 0.0}) {
-    setState(() {
+    if (_items.any((item) => item.id == id)) {
+      _items.firstWhere((item) => item.id == id).quantity += 1;
+    } else {
       _items.add(
         CartItem(id: id, name: name, price: price, discount: discount),
       );
-    });
+    }
   }
 
   void removeItem(String id) {
-    setState(() {
-      _items.removeWhere((item) => item.id == id);
-    });
+    _items.removeWhere((item) => item.id == id);
   }
 
   void updateQuantity(String id, int newQuantity) {
-    setState(() {
-      final index = _items.indexWhere((item) => item.id == id);
-      if (index != -1) {
-        if (newQuantity <= 0) {
-          _items.removeAt(index);
-        } else {
-          _items[index].quantity = newQuantity;
-        }
+    final index = _items.indexWhere((item) => item.id == id);
+    if (index != -1) {
+      if (newQuantity <= 0) {
+        _items.removeAt(index);
+      } else {
+        _items[index].quantity = newQuantity;
       }
-    });
+    }
   }
 
   void clearCart() {
-    setState(() {
-      _items.clear();
-    });
+    _items.clear();
   }
 
   double get subtotal {
@@ -70,18 +59,32 @@ class _ShoppingCartState extends State<ShoppingCart> {
   double get totalDiscount {
     double discount = 0;
     for (var item in _items) {
-      discount += item.discount * item.quantity;
+      // If the discount is a percentage (e.g. 0.1 == 10%), apply to price * quantity
+      discount += (item.price * item.discount) * item.quantity;
     }
     return discount;
   }
 
   double get totalAmount {
-    return subtotal + totalDiscount;
+    return subtotal - totalDiscount;
   }
 
   int get totalItems {
     return _items.fold(0, (sum, item) => sum + item.quantity);
   }
+
+  List<CartItem> get items => _items;
+}
+
+class ShoppingCartWidget extends StatefulWidget {
+  const ShoppingCartWidget({super.key});
+
+  @override
+  State<ShoppingCartWidget> createState() => _ShoppingCartWidgetState();
+}
+
+class _ShoppingCartWidgetState extends State<ShoppingCartWidget> {
+  final ShoppingCart _cart = ShoppingCart();
 
   @override
   Widget build(BuildContext context) {
@@ -91,22 +94,35 @@ class _ShoppingCartState extends State<ShoppingCart> {
           spacing: 8,
           children: [
             ElevatedButton(
-              onPressed: () =>
-                  addItem('1', 'Apple iPhone', 999.99, discount: 0.1),
+              onPressed: () {
+                setState(() {
+                  _cart.addItem('1', 'Apple iPhone', 999.99, discount: 0.1);
+                });
+              },
               child: const Text('Add iPhone'),
             ),
             ElevatedButton(
-              onPressed: () =>
-                  addItem('2', 'Samsung Galaxy', 899.99, discount: 0.15),
+              onPressed: () {
+                setState(() {
+                  _cart.addItem('2', 'Samsung Galaxy', 899.99, discount: 0.15);
+                });
+              },
               child: const Text('Add Galaxy'),
             ),
             ElevatedButton(
-              onPressed: () => addItem('3', 'iPad Pro', 1099.99),
+              onPressed: () {
+                setState(() {
+                  _cart.addItem('3', 'iPad Pro', 1099.99);
+                });
+              },
               child: const Text('Add iPad'),
             ),
             ElevatedButton(
-              onPressed: () =>
-                  addItem('1', 'Apple iPhone', 999.99, discount: 0.1),
+              onPressed: () {
+                setState(() {
+                  _cart.addItem('1', 'Apple iPhone', 999.99, discount: 0.1);
+                });
+              },
               child: const Text('Add iPhone Again'),
             ),
           ],
@@ -125,9 +141,13 @@ class _ShoppingCartState extends State<ShoppingCart> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Total Items: $totalItems'),
+                  Text('Total Items: ${_cart.totalItems}'),
                   ElevatedButton(
-                    onPressed: clearCart,
+                    onPressed: () {
+                      setState(() {
+                        _cart.clearCart();
+                      });
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
@@ -136,11 +156,13 @@ class _ShoppingCartState extends State<ShoppingCart> {
                 ],
               ),
               const SizedBox(height: 8),
-              Text('Subtotal: \$${subtotal.toStringAsFixed(2)}'),
-              Text('Total Discount: \$${totalDiscount.toStringAsFixed(2)}'),
+              Text('Subtotal: \$${_cart.subtotal.toStringAsFixed(2)}'),
+              Text(
+                'Total Discount: \$${_cart.totalDiscount.toStringAsFixed(2)}',
+              ),
               const Divider(),
               Text(
-                'Total Amount: \$${totalAmount.toStringAsFixed(2)}',
+                'Total Amount: \$${_cart.totalAmount.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -151,14 +173,14 @@ class _ShoppingCartState extends State<ShoppingCart> {
         ),
         const SizedBox(height: 16),
 
-        _items.isEmpty
+        _cart.items.isEmpty
             ? const Center(child: Text('Cart is empty'))
             : ListView.builder(
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                itemCount: _items.length,
+                itemCount: _cart.items.length,
                 itemBuilder: (context, index) {
-                  final item = _items[index];
+                  final item = _cart.items[index];
                   final itemTotal = item.price * item.quantity;
 
                   return Card(
@@ -182,8 +204,14 @@ class _ShoppingCartState extends State<ShoppingCart> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            onPressed: () =>
-                                updateQuantity(item.id, item.quantity - 1),
+                            onPressed: () {
+                              setState(() {
+                                _cart.updateQuantity(
+                                  item.id,
+                                  item.quantity - 1,
+                                );
+                              });
+                            },
                             icon: const Icon(Icons.remove),
                           ),
                           Container(
@@ -198,12 +226,22 @@ class _ShoppingCartState extends State<ShoppingCart> {
                             child: Text('${item.quantity}'),
                           ),
                           IconButton(
-                            onPressed: () =>
-                                updateQuantity(item.id, item.quantity + 1),
+                            onPressed: () {
+                              setState(() {
+                                _cart.updateQuantity(
+                                  item.id,
+                                  item.quantity + 1,
+                                );
+                              });
+                            },
                             icon: const Icon(Icons.add),
                           ),
                           IconButton(
-                            onPressed: () => removeItem(item.id),
+                            onPressed: () {
+                              setState(() {
+                                _cart.removeItem(item.id);
+                              });
+                            },
                             icon: const Icon(Icons.delete),
                             color: Colors.red,
                           ),

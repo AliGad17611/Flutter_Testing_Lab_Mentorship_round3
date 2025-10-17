@@ -3,6 +3,14 @@ import 'package:flutter/material.dart';
 class WeatherDisplay extends StatefulWidget {
   const WeatherDisplay({super.key});
 
+  static double celsiusToFahrenheit(double celsius) {
+    return celsius * 9 / 5 + 32;
+  }
+
+  static double fahrenheitToCelsius(double fahrenheit) {
+    return (fahrenheit - 32) * 5 / 9;
+  }
+
   @override
   State<WeatherDisplay> createState() => _WeatherDisplayState();
 }
@@ -15,14 +23,6 @@ class _WeatherDisplayState extends State<WeatherDisplay> {
   String _selectedCity = 'New York';
 
   final List<String> _cities = ['New York', 'London', 'Tokyo', 'Invalid City'];
-
-  double celsiusToFahrenheit(double celsius) {
-    return celsius * 9 / 5 + 32;
-  }
-
-  double fahrenheitToCelsius(double fahrenheit) {
-    return (fahrenheit - 32) * 5 / 9;
-  }
 
   // Simulate API call that sometimes returns null or malformed data
   Future<Map<String, dynamic>?> _fetchWeatherData(String city) async {
@@ -217,7 +217,7 @@ class _WeatherDisplayState extends State<WeatherDisplay> {
                     Center(
                       child: Text(
                         _useFahrenheit
-                            ? '${celsiusToFahrenheit(_weatherData!.temperatureCelsius).toStringAsFixed(1)}°F'
+                            ? '${WeatherDisplay.celsiusToFahrenheit(_weatherData!.temperatureCelsius).toStringAsFixed(1)}°F'
                             : '${_weatherData!.temperatureCelsius.toStringAsFixed(1)}°C',
                         style: const TextStyle(
                           fontSize: 48,

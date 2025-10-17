@@ -74,7 +74,8 @@ class _ShoppingCartState extends State<ShoppingCart> {
   double get totalDiscount {
     double discount = 0;
     for (var item in _items) {
-      discount += item.discount * item.quantity;
+      // If the discount is a percentage (e.g. 0.1 == 10%), apply to price * quantity
+      discount += (item.price * item.discount) * item.quantity;
     }
     return discount;
   }
